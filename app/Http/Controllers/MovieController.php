@@ -15,7 +15,7 @@ class MovieController extends Controller
         $this->movieHelper = new MovieHelper();
     }
 
-    public function storeFilmTest(Request $request)
+    public function fetchFilm(Request $request)
     {
         $data = $this->movieHelper->fetchMovie();
 
@@ -25,6 +25,26 @@ class MovieController extends Controller
     public function store(Request $request)
     {
         $response = $this->movieHelper->store(StoreDto::fromRequest($request->all()));
+
+        if (!$response->status) {
+            return response()->json([
+                'error' => $response->message,
+                'message' => $response->message,
+                'status_code' => $response->code,
+                'dev' => $response->dev
+            ], $response->code);
+        }
+
+        return response()->json([
+            'message' => $response->message,
+            'data' => $response->data,
+            'status_code' => $response->code
+        ], $response->code);
+    }
+
+    public function getLastFetchedDate()
+    {
+        $response = $this->movieHelper->getLastFetchedDate();
 
         if (!$response->status) {
             return response()->json([

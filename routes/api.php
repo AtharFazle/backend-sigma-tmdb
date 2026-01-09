@@ -13,19 +13,21 @@ Route::prefix('v1')->group(function () {
 
     // })
 
-    Route::get('test', [MovieController::class, 'storeFilmTest'])->middleware(EnsureTokenIsValid::class);
-
+    
+    
     Route::prefix('analytics')->group(function () {
         Route::get('/genres', [GenreController::class, 'analyticsByGenres'])->middleware(EnsureTokenIsValid::class);
         Route::get('/release-date', [MovieController::class, 'analyticsByReleaseDate'])->middleware(EnsureTokenIsValid::class);
         Route::get('/adult', [MovieController::class, 'analyticsByAdult'])->middleware(EnsureTokenIsValid::class);
         Route::get('/rating', [MovieController::class, 'analyticsByRating'])->middleware(EnsureTokenIsValid::class);
     });
-
+    
     Route::prefix('movies')->group(function () {
         Route::get('/', [MovieController::class, 'getAllMovies'])->middleware(EnsureTokenIsValid::class);
         Route::post('/', [MovieController::class, 'store'])->middleware(EnsureTokenIsValid::class);
         Route::put('/{id}', [MovieController::class, 'update'])->middleware(EnsureTokenIsValid::class);
+        Route::get('/sync', [MovieController::class, 'fetchFilm'])->middleware(EnsureTokenIsValid::class);
+        Route::get('/last-fetched-date', [MovieController::class, 'getLastFetchedDate'])->middleware(EnsureTokenIsValid::class);
 
         Route::delete('/{id}', [MovieController::class, 'delete'])->middleware(EnsureTokenIsValid::class);
     });

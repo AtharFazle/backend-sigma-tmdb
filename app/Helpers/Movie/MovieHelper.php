@@ -16,6 +16,7 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 use function Illuminate\Log\log;
@@ -366,6 +367,33 @@ class MovieHelper
         }
     }
 
+    public function getLastFetchedDate()
+    {
+        try {
+            $tmdb = Tmdb::find(1);
+
+            if (empty($tmdb)) {
+                throw new Exception('TMDB data not found');
+            }
+
+            return new HelperResponseDto(
+                code: StatusCodeConstant::SUCCESS,
+                status: true,
+                message: 'Last fetched date retrieved successfully',
+                data: [
+                    'last_fetched_date' => $tmdb->updated_at,
+                ],
+            );
+        } catch (Throwable $e) {
+            return new HelperResponseDto(
+                code: StatusCodeConstant::INTERNAL_SERVER_ERROR,
+                status: false,
+                message: "Something went wrong",
+                dev: $this->devResponse($e),
+            );
+        }
+    }
+
 
     private function deleteAllTGenres(string $movie_id, array $genre_id)
     {
@@ -392,6 +420,8 @@ class MovieHelper
 
                 if (!empty($movie)) {
                     if ($movie->is_updated_by_user) {
+                        Log::info('Movie with ID ' . $movie->id . ' has been updated by user. Skipping update from TMDB.');
+                        return;
                     } else {
                         $movie->update($value);
                     }
